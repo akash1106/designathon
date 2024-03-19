@@ -8,4 +8,4 @@ class appuserAdmin(admin.ModelAdmin):
     list_display=("uid","uname","pas","email","api","usage")
     
     
-admin.site.register(user,appuserAdmin)
+admin.site.register(appuser,appuserAdmin)

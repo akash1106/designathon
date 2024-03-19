@@ -1,7 +1,7 @@
 from django.db import models
 
 # Create your models here.
-class user(models.Model):
+class appuser(models.Model):
     uid=models.AutoField(primary_key=True,unique=True)
     uname=models.CharField(max_length=100)
     pas=models.CharField(max_length=25)
