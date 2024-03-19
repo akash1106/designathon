@@ -1,37 +1,6 @@
-from django.views.decorators.csrf import csrf_exempt
-from .models import *
-from rest_framework.parsers import JSONParser
-from django.http.response import JsonResponse
-from datetime import datetime
-import random
-import string
-import pandas as pd
-from nltk.corpus import stopwords
-import re
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-import nltk
-import cv2
-import pytesseract
 from django.shortcuts import render
 
-def set_cookie(response, key, value, days_expire=30):
-    if days_expire is None:
-        max_age = 365 * 24 * 60 * 60  
-    else:
-        max_age = days_expire * 24 * 60 * 60
-    expires = datetime.datetime.strftime(
-        datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age),
-        "%a, %d-%b-%Y %H:%M:%S GMT",
-    )
-    response.set_cookie(
-        key,
-        value,
-        max_age=max_age,
-        expires=expires
-    )
+
 
 def register(request):
     if request.method == "GET":
@@ -221,5 +190,4 @@ def picspam(request,api_key=None,uid=None):
     text = pytesseract.image_to_string(image)
     print("Text extracted from the selected portion of the image:")
     print(text)
-    
     
