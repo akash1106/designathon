@@ -2,13 +2,20 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import *
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from .serializers import *
 from datetime import datetime
-from email.message import EmailMessage
-import smtplib
 import random
 import string
-
+import pandas as pd
+from nltk.corpus import stopwords
+import re
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+import nltk
+import cv2
+import pytesseract
+from django.shortcuts import render
 
 def set_cookie(response, key, value, days_expire=30):
     if days_expire is None:
@@ -62,7 +69,7 @@ def login(request):
             else:
                 pass
         else:
-            pass
+            return render(request,"user_dashboard.html")
     elif request.method == "POST":
         name=request.POST['name']
         password=request.POST['password']
@@ -151,12 +158,66 @@ def logout(request):
     # return response
     pass
 
-def checkText(request,api_key=None,uid=None):
-    if request.method=="GET":
+def checkText(request,api_key=None,uid=None,new_message=None):
+    if request.method=="POST":
         if api_key!=None:
             userobj=appuser.objects.get(api=api_key)
+            new_message = request.form['message']
         elif uid!=None:
             userobj=appuser.objects.get(uid=uid)
         else:
             pass
-        
+        userobj.usage+=1
+        userobj.save()
+        data = pd.read_csv('SPAM-ALERTSYSTEM-main\spam.csv', encoding='latin-1')
+
+        stop_words = set(stopwords.words('english'))
+
+        def preprocess_text(text):
+            text = re.sub('[^a-zA-Z]', ' ', text)
+            text = text.lower()
+            text = nltk.word_tokenize(text)
+            text = [word for word in text if word not in stop_words]
+            text = ' '.join(text)
+            return text
+
+        data['v2'] = data['v2'].apply(preprocess_text)
+
+        X_train, X_test, y_train, y_test = train_test_split(data['v2'], data['v1'], test_size=0.2, random_state=42)
+
+
+        vectorizer = CountVectorizer()
+        X_train = vectorizer.fit_transform(X_train)
+        X_test = vectorizer.transform(X_test)
+
+        clf = MultinomialNB()
+        clf.fit(X_train, y_train)
+
+        y_pred = clf.predict(X_test)
+        accuracy = accuracy_score(y_test, y_pred)
+        precision = precision_score(y_test, y_pred, pos_label='spam')
+        recall = recall_score(y_test, y_pred, pos_label='spam')
+        f1 = f1_score(y_test, y_pred, pos_label='spam')
+
+        # print("Accuracy:", accuracy)
+        # print("Precision:", precision)
+        # print("Recall:", recall)
+        # print("F1 score:", f1)
+        global a11
+        a11 = '' + new_message
+        print("YOUR INPUT:", a11)
+        new_message = preprocess_text(new_message)
+        new_message_vector = vectorizer.transform([new_message])
+        prediction = clf.predict(new_message_vector)
+        if prediction[0] == 'spam':
+            print("spam")
+        else:
+            print("not spam")
+            
+def picspam(request,api_key=None,uid=None):
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract\tesseract.exe'
+    image_path = 'image.jpg'
+    image = cv2.imread(image_path)
+    text = pytesseract.image_to_string(image)
+    print("Text extracted from the selected portion of the image:")
+    print(text)
