@@ -169,6 +169,26 @@ def checkText(request,api_key=None,uid=None,new_message=None):
             pass
         userobj.usage+=1
         userobj.save()
+        res=texttest(new_message)
+        if res:
+            pass
+        else:
+            pass
+            
+def picspam(request,api_key=None,uid=None):
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract\tesseract.exe'
+    image_path = 'image.jpg'
+    image = cv2.imread(image_path)
+    text = pytesseract.image_to_string(image)
+    print("Text extracted from the selected portion of the image:")
+    res=texttest(text)
+    if res:
+        pass
+    else:
+        pass
+     
+def texttest(mess):
+        new_message=mess
         data = pd.read_csv('SPAM-ALERTSYSTEM-main\spam.csv', encoding='latin-1')
 
         stop_words = set(stopwords.words('english'))
@@ -210,16 +230,7 @@ def checkText(request,api_key=None,uid=None,new_message=None):
         new_message_vector = vectorizer.transform([new_message])
         prediction = clf.predict(new_message_vector)
         if prediction[0] == 'spam':
-            print("spam")
+            return 0
         else:
-            print("not spam")
-            
-def picspam(request,api_key=None,uid=None):
-    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract\tesseract.exe'
-    image_path = 'image.jpg'
-    image = cv2.imread(image_path)
-    text = pytesseract.image_to_string(image)
-    print("Text extracted from the selected portion of the image:")
-    print(text)
-    
+            return 1
     
