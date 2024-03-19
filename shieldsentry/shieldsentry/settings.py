@@ -83,7 +83,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "shieldsentry",
         "USER": "postgres",
-        "PASSWORD": "Sash@0812",
+        "PASSWORD": "110akash62003",
         "HOST": "127.0.0.1",
         "PORT": "5432",
     }
@@ -142,3 +142,5 @@ REST_FRAMEWORK={
 }
 
 CORS_ORIGIN_ALLOW_ALL=True
+
+APPEND_SLASH=False 

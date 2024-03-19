@@ -6,6 +6,7 @@
     rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
+  {% load static %} 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
@@ -17,24 +18,20 @@
     
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
               <li><a href="#" class="nav-link px-2 link-secondary">Dashboard</a></li>
-              <li><a href="#" class="nav-link px-2 link-body-emphasis">Home</a></li>
+              <li><a href="{% url 'profile' user.uid %}" class="nav-link px-2 link-body-emphasis">Profile</a></li>
               <li><a href="#" class="nav-link px-2 link-body-emphasis">About</a></li>
               <li><a href="#" class="nav-link px-2 link-body-emphasis">Help</a></li>
             </ul>
-    
-            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-              <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
-            </form>
     
             <div class="dropdown text-end">
               <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
               </a>
               <ul class="dropdown-menu text-small" style="">
-                <li><a class="dropdown-item" href="#">Profile</a></li>
-                <li><a class="dropdown-item" href="#">Change Password</a></li>
+                <li><a class="dropdown-item" href="{% url 'profile' user.uid %}">Profile</a></li>
+                <li><a class="dropdown-item" href="{% url 'changepass' user.uid %}">Change Password</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#">Sign out</a></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}">Sign out</a></li>
               </ul>
             </div>
           </div>
@@ -46,28 +43,29 @@
           <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 g-3">
             <div class="col">
               <div class="card shadow-sm">
-                <img src="./msg-spam.jpeg" style="width: 50%;margin-left: 150px;">
+                <img src="{% static "img/msg-spam.jpeg" %}" style="width: 50%;margin-left: 150px;">
                 <div class="card-body">
                   <p style="text-align: center;" class="card-text">To detect your text message</p>
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="btn-group" style="margin-left: 200px;">
+                      <a href="{% url 'checktext' user.uid %}">
                       <button type="button" class="btn btn-sm btn-outline-primary">Click here</button>
-               
+                      </a>
                     </div>
-                    
                   </div>
                 </div>
               </div>
             </div>
             <div class="col">
               <div class="card shadow-sm">
-                <img src="./audio-spm.jpg" style="width: 90%;">
+                <img src="{% static "img/audio-spm.jpg" %}" style="width: 90%;">
                 <div class="card-body">
                   <p style="text-align: center;" class="card-text">To detect your audio</p>
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="btn-group" style="margin-left: 210px;">
+                      <a href="{% url 'checkaudio' user.uid %}">
                       <button type="button" class="btn btn-sm btn-outline-primary">Click here</button>
-                      
+                      </a>
                     </div>
              
                   </div>
@@ -76,13 +74,14 @@
             </div>
             <div class="col">
               <div class="card shadow-sm">
-                <img src="./img-spm.jpg" style="width: 95%;" >
+                <img src="{% static "img/img-spm.jpg" %}" style="width: 95%;" >
                 <div class="card-body">
                   <p style="text-align: center;" class="card-text">To detect your image</p>
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="btn-group" style="margin-left: 200px;">
+                      <a href="{% url 'picspam' user.uid %}">
                       <button type="button" class="btn btn-sm btn-outline-primary">Click here</button>
-                     
+                      </a>
                     </div>
                     
                   </div>
@@ -94,7 +93,7 @@
            
             <div class="col">
               <div class="card shadow-sm">
-                <img src="./doc-spm.jpg" style="width: 50%; height:80%; margin-left: 155px;" >
+                <img src="{% static "img/doc-spm.jpg" %}" style="width: 50%; height:80%; margin-left: 155px;" >
                 <div class="card-body">
                   <p style="text-align: center;" class="card-text">To detect your document</p>
                   <div class="d-flex justify-content-between align-items-center">

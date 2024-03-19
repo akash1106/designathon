@@ -2,7 +2,9 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import *
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from datetime import datetime
+from django.http import  HttpResponseRedirect
+from django.urls import reverse
+from datetime import datetime,timedelta
 import random
 import string
 import pandas as pd
@@ -16,73 +18,106 @@ import nltk
 import cv2
 import pytesseract
 from django.shortcuts import render
+import speech_recognition as sr
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from .forms import *
+from PIL import Image
 
-def signup(request):
-        return render(request,"signup.html")
 
-
+def set_cookie(response, key, value, days_expire=7):
+    if days_expire is None:
+        max_age = 365 * 24 * 60 * 60  
+    else:
+        max_age = days_expire * 24 * 60 * 60
+    expires = datetime.strftime(
+        datetime.utcnow() + timedelta(seconds=max_age),
+        "%a, %d-%b-%Y %H:%M:%S GMT",
+    )
+    response.set_cookie(
+        key,
+        value,
+        max_age=max_age,
+        expires=expires
+    )
+    
 def register(request):
+    print("ukjsd,m")
     if request.method == "GET":
         if 'username' in request.COOKIES and 'passwd' in request.COOKIES and 'log' in request.COOKIES:
             if request.COOKIES['log'] == 's':
-                pass
+                userobj=appuser.objects.filter(uname=name, pas=password)
+                if userobj:
+                    return HttpResponseRedirect(reverse('home',args=[userobj.uid]))
             elif request.COOKIES['log'] == 'a':
-                pass
-            else:
-                pass
+                userobj=appuser.objects.filter(uname=name, pas=password)
+                if userobj:
+                    return HttpResponseRedirect(reverse('admindesh',args=[userobj.uid]))
+            return render(request,"signup.html")
         else:
-            pass
+            return render(request,"signup.html")
     elif request.method == "POST":
         name=request.POST['name']
-        password=request.POST['password']
+        password=request.POST['password1']
         mail=request.POST['mail']
-        if name=="" or name==" " or len(password)<8 or '@' in mail:
+        print(1)
+        if name=="" or name==" " or len(password)<8 or not '@' in mail:
             pass
         else:
+            print(2)
             obj=appuser.objects.create(uname=name,pas=password,email=mail)
             obj.save()
-            # response=HttpResponseRedirect(reverse('home'))
-            # set_cookie(response,'username', usname)
-            # set_cookie(response,'passwd', passwd)
-            # set_cookie(response,'log','s')
-            # return response
+            print(obj.uid)
+            response=HttpResponseRedirect(reverse('home',args=[obj.uid]))
+            set_cookie(response,'username', mail)
+            set_cookie(response,'passwd', password)
+            set_cookie(response,'log','s')
+            return response
 
 def login(request):
     if request.method == "GET":
         if 'username' in request.COOKIES and 'passwd' in request.COOKIES and 'log' in request.COOKIES:
             if request.COOKIES['log'] == 's':
-                pass
+                userobj=appuser.objects.filter(email=request.COOKIES['username'], pas=request.COOKIES['passwd'])
+                if userobj:
+                    return HttpResponseRedirect(reverse('home',args=[userobj[0].uid]))
             elif request.COOKIES['log'] == 'a':
-                pass
-            else:
-                pass
+                userobj=appuser.objects.filter(uname=name, pas=password)
+                if userobj:
+                    return HttpResponseRedirect(reverse('admindesh',args=[userobj.uid]))
+            return render(request,"login.html")
         else:
-            return render(request,"user_dashboard.html")
+            return render(request,"login.html")
     elif request.method == "POST":
         name=request.POST['name']
         password=request.POST['password']
-        obj=appuser.objects.filter(uname=name, pas=password)
+        obj=appuser.objects.filter(email=name, pas=password)
+        print(obj)
         if obj:
-            # response=HttpResponseRedirect(reverse('home'))
-            # set_cookie(response,'username', usname)
-            # set_cookie(response,'passwd', passwd)
-            # set_cookie(response,'log','s')
-            # return response
-            pass
+            response=HttpResponseRedirect(reverse('home',args=[obj[0].uid]))
+            set_cookie(response,'username', name)
+            set_cookie(response,'passwd', password)
+            set_cookie(response,'log','s')
+            return response
         else:
-            pass
+            return 
 
 def home(request,uid=None):
     if request.method == "GET":
         if 'username' in request.COOKIES and 'passwd' in request.COOKIES and 'log' in request.COOKIES:
             if request.COOKIES['log'] == 's':
-                userobj=appuser.objects.get(uid=uid)
+                userobj=appuser.objects.filter(uid=uid)
+                return  render(request,"user_dashboard.html",{
+                    "user":userobj[0],
+                    })
             elif request.COOKIES['log'] == 'a':
-                pass
+                userobj=appuser.objects.filter(uname=request.COOKIES['username'], pas=request.COOKIES['passwd'])
+                if userobj:
+                    return HttpResponseRedirect(reverse('admindesh/'+str(userobj.uid)))
             else:
-                pass
+                return HttpResponseRedirect(reverse('login'))
         else:
-            pass
+            return HttpResponseRedirect(reverse('login'))
 
 def admin(request,uid=None):
     if request.method == "GET":
@@ -100,13 +135,16 @@ def profile(request,uid=None):
     if request.method == "GET":
         if 'username' in request.COOKIES and 'passwd' in request.COOKIES and 'log' in request.COOKIES:
             if request.COOKIES['log'] == 's':
-                userobj=appuser.objects.get(uid=uid)
+                userobj=appuser.objects.filter(uid=uid)
+                return render(request,"admin_profile.html",{
+                    "user":userobj[0],
+                })
             elif request.COOKIES['log'] == 'a':
-                pass
+                return HttpResponseRedirect(reverse('login'))
             else:
-                pass
+                return HttpResponseRedirect(reverse('login'))
         else:
-            pass
+            return HttpResponseRedirect(reverse('login'))
     elif request.method == "POST":
         userobj=appuser.objects.get(uid=uid)
         existing_keys=appuser.objects.values_list('api').values()
@@ -122,12 +160,13 @@ def changePassword(request,uid=None):
         if 'username' in request.COOKIES and 'passwd' in request.COOKIES and 'log' in request.COOKIES:
             if request.COOKIES['log'] == 's':
                 userobj=appuser.objects.get(uid=uid)
+                return  render(request,'changepw.html',{'uesr':userobj})
             elif request.COOKIES['log'] == 'a':
                 userobj=appuser.objects.get(uid=uid)
             else:
-                pass
+                return HttpResponseRedirect(reverse('login'))
         else:
-            pass
+            return HttpResponseRedirect(reverse('login'))
     elif request.method == "POST":
         userobj=appuser.objects.get(uid=uid)
         oldpw=request.POST["oldpassword"]
@@ -139,14 +178,13 @@ def changePassword(request,uid=None):
             pass
 
 def logout(request):
-    # response=HttpResponseRedirect(reverse('login'))
-    # response.delete_cookie("username")
-    # response.delete_cookie("passwd")
-    # response.delete_cookie("log")
-    # return response
-    pass
+    response=HttpResponseRedirect(reverse('login'))
+    response.delete_cookie("username")
+    response.delete_cookie("passwd")
+    response.delete_cookie("log")
+    return response
 
-def checkText(request,api_key=None,uid=None,new_message=None):
+def checkText(request,api_key=None,uid=None):
     if request.method=="POST":
         if api_key!=None:
             userobj=appuser.objects.get(api=api_key)
@@ -157,7 +195,84 @@ def checkText(request,api_key=None,uid=None,new_message=None):
             pass
         userobj.usage+=1
         userobj.save()
-        data = pd.read_csv('SPAM-ALERTSYSTEM-main\spam.csv', encoding='latin-1')
+        new_message = request.POST['message']
+        res=texttest(new_message)
+        if res:
+            print("not spam")
+            return render(request,"text_detection.html",{
+                "user":userobj,
+                "data":2,
+                "place":new_message,
+            })
+        else:
+            print("spam")
+            return render(request,"text_detection.html",{
+                "user":userobj,
+                "data":1,
+                "place":new_message,
+            })
+    if request.method=="GET":
+        if 'username' in request.COOKIES and 'passwd' in request.COOKIES and 'log' in request.COOKIES:
+            if request.COOKIES['log'] == 's':
+                userobj=appuser.objects.filter(email=request.COOKIES['username'], pas=request.COOKIES['passwd'])
+                print(userobj)
+                if userobj:
+                    return render(request,"text_detection.html",{
+                        "user":userobj[0],
+                        "data":0,
+                        "place":'',
+                    })
+            elif request.COOKIES['log'] == 'a':
+                userobj=appuser.objects.filter(uid=uid)
+                if userobj:
+                    return HttpResponseRedirect(reverse('admindesh',args=[userobj[0].uid]))
+            return HttpResponseRedirect(reverse('login'))
+        else:
+            return HttpResponseRedirect(reverse('login'))
+               
+def picspam(request,api_key=None,uid=None):
+    if request.method=="POST":
+        pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract\tesseract.exe'
+        
+        uploaded_image = request.FILES['image']
+        with open('uploaded_image.png', 'wb') as f:
+            for chunk in uploaded_image.chunks():
+                f.write(chunk)
+        
+        image = Image.open('uploaded_image.png')
+        text = pytesseract.image_to_string(image)
+        res=texttest(text)
+        userobj=appuser.objects.filter(uid=uid)
+        if res:
+            return render(request,"img_dtection.html",{
+                "user":userobj[0],
+                "data":1,
+            })
+        else:
+            return render(request,"img_dtection.html",{
+                "user":userobj[0],
+                "data":2,
+            })
+    elif request.method=="GET":
+        if 'username' in request.COOKIES and 'passwd' in request.COOKIES and 'log' in request.COOKIES:
+            if request.COOKIES['log'] == 's':
+                userobj=appuser.objects.filter(email=request.COOKIES['username'], pas=request.COOKIES['passwd'])
+                if userobj:
+                    return render(request,'img_dtection.html',{
+                        "user":userobj[0],
+                        "data":0,
+                    })
+            elif request.COOKIES['log'] == 'a':
+                userobj=appuser.objects.filter(email=request.COOKIES['username'], pas=request.COOKIES['passwd'])
+                if userobj:
+                    return HttpResponseRedirect(reverse('login'))
+            return render(request,"login.html")
+        else:
+            return render(request,"login.html")
+     
+def texttest(mess):
+        new_message=mess
+        data = pd.read_csv('D:\\akash\\designathon\\shieldsentry\\data\\spam.csv', encoding='latin-1')
 
         stop_words = set(stopwords.words('english'))
 
@@ -198,15 +313,61 @@ def checkText(request,api_key=None,uid=None,new_message=None):
         new_message_vector = vectorizer.transform([new_message])
         prediction = clf.predict(new_message_vector)
         if prediction[0] == 'spam':
-            print("spam")
+            return 0
         else:
-            print("not spam")
-            
-def picspam(request,api_key=None,uid=None):
-    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract\tesseract.exe'
-    image_path = 'image.jpg'
-    image = cv2.imread(image_path)
-    text = pytesseract.image_to_string(image)
-    print("Text extracted from the selected portion of the image:")
-    print(text)
+            return 1
     
+def checkaudio(request,api=None,uid=None):
+    if request.method=='POST':
+        uploaded_audio = request.FILES['audio']
+        with open('uploaded_audio.wav', 'wb') as f:
+            for chunk in uploaded_audio.chunks():
+                f.write(chunk)
+        def transcribe_audio(file_path):
+            recognizer = sr.Recognizer()
+            with sr.AudioFile(file_path) as audio_file:
+                audio_data = recognizer.record(audio_file)
+            transcription = recognizer.recognize_google(audio_data)
+            return transcription
+        dataset = pd.read_csv("D:\\akash\\designathon\\shieldsentry\\data\\static\\file\\transcripe.csv")
+        transcription = transcribe_audio("uploaded_audio.wav")
+        vectorizer = TfidfVectorizer()
+        X = vectorizer.fit_transform(dataset["transcription"])
+        y = dataset["label"]
+        model = LogisticRegression()
+        model.fit(X, y)
+        X_test = vectorizer.transform([transcription])
+        y_pred = model.predict(X_test)
+        userobj=appuser.objects.filter(uid=uid)
+        if y_pred[0] == 1:
+            return render(request,"audio_detection.html",{
+                        "user":userobj[0],
+                        "data":1,
+                    })
+        else:
+            return render(request,"audio_detection.html",{
+                        "user":userobj[0],
+                        "data":2,
+                    })
+    if request.method=="GET":
+        if 'username' in request.COOKIES and 'passwd' in request.COOKIES and 'log' in request.COOKIES:
+            if request.COOKIES['log'] == 's':
+                userobj=appuser.objects.filter(email=request.COOKIES['username'], pas=request.COOKIES['passwd'])
+                if userobj:
+                    return render(request,"audio_detection.html",{
+                        "user":userobj[0],
+                        "data":0,
+                    })
+            elif request.COOKIES['log'] == 'a':
+                userobj=appuser.objects.filter(email=request.COOKIES['username'], pas=request.COOKIES['passwd'])
+                if userobj:
+                    return HttpResponseRedirect(reverse('admindesh',args=[userobj.uid]))
+            return render(request,"login.html")
+        else:
+            return render(request,"login.html")
+
+def checkpan():
+    pass
+
+def checkaadhar():
+    pass

@@ -17,24 +17,20 @@
     
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
               <li><a href="./admin_dashboard.html" class="nav-link px-2 link-body-emphasis">Dashboard</a></li>
-              <li><a href="./admin_profile.html" class="nav-link px-2 link-body-secondary">Profile</a></li>
-              <li><a href="#" class="nav-link px-2 link-body-emphasis">About</a></li>
+              <li><a href="#" class="nav-link px-2 link-body-secondary">Profile</a></li>
+              <li><a href="{% url 'profile' user.uid %}" class="nav-link px-2 link-body-emphasis">About</a></li>
               <li><a href="#" class="nav-link px-2 link-body-emphasis">Help</a></li>
             </ul>
-    
-            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-              <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
-            </form>
     
             <div class="dropdown text-end">
               <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
               </a>
               <ul class="dropdown-menu text-small" style="">
-                <li><a class="dropdown-item" href="#">Profile</a></li>
-                <li><a class="dropdown-item" href="#">Change Password</a></li>
+                <li><a class="dropdown-item" href="{% url 'profile' user.uid %}">Profile</a></li>
+                <li><a class="dropdown-item" href="{% url 'changepass' user.uid %}">Change Password</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#">Sign out</a></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}">Sign out</a></li>
               </ul>
             </div>
           </div>
@@ -43,10 +39,10 @@
           <div class="card">
             <h5 class="card-header">API Key</h5>
             <div class="card-body">
-              <h5 class="card-title">Enter your API Key</h5>
+              <h5 class="card-title">Your API Key</h5>
               <input type="text" width="100%">
 
-              <a href="#" class="btn btn-primary">Edit API Key</a>
+              <a href="#" class="btn btn-primary">Change API Key</a>
             </div>
           </div>
 
