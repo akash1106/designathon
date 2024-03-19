@@ -22,10 +22,6 @@
               <li><a href="#" class="nav-link px-2 link-body-emphasis">Help</a></li>
             </ul>
     
-            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-              <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
-            </form>
-    
             <div class="dropdown text-end">
               <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
@@ -43,11 +39,18 @@
           <div class="card">
             <h5 class="card-header"><b>Image Detection</b></h5>
             <div class="card-body">
-              <h5 class="card-title">Upload your Image</h5>
-            <input type="file" style="margin-left: 105px;margin-top: 15px;margin-bottom: 15px; ">
-            <br>
-
-              <a href="#" class="btn btn-primary" style="margin: 20px ;" >Submit</a>
+              <form  action="{% url 'picspam' user.uid %}"  method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                  <h5 class="card-title">Upload your Image</h5>
+                <input type="file"  name="image" style="margin-left: 105px;margin-top: 15px;margin-bottom: 15px; ">
+                <br>
+                {% if data == 1 %}
+                <h2>Your image is : Spam</h2>
+                {% elif  data == 2%}
+                <h2>Your image is : Not Spam</h2>
+                {% endif %}
+                <button class="btn btn-primary" type="submit">sumbit</button>
+              </form>
             </div>
           </div>
 

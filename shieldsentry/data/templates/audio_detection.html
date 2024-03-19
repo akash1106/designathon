@@ -51,11 +51,19 @@
           <div class="card">
             <h5 class="card-header"><b>Audio Detection</b></h5>
             <div class="card-body">
-              <h5 class="card-title">Upload your audio</h5>
-            <input type="file" style="margin-left: 105px;margin-top: 15px;margin-bottom: 15px; ">
-            <br>
-
-              <a href="#" class="btn btn-primary" style="margin: 20px ;" >Submit</a>
+              <form  action="{% url 'checkaudio' user.uid %}"  method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+              <h5 class="card-title">Enter your Audio</h5>
+              <input type="file" name="audio" style="width: 300px; height: 200px;">
+              {% if data == 1 %}
+              <h2>Your Audio is : Spam</h2>
+              {% elif  data == 2%}
+              <h2>Your Audio is : Not Spam</h2>
+              {% endif %}
+<br>
+              {% comment %} <a href="#" class="btn btn-primary" style="margin: 20px;">submit</a> {% endcomment %}
+              <button class="btn btn-primary" type="submit">sumbit</button>
+              </form>
             </div>
           </div>
 

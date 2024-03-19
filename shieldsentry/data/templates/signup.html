@@ -18,22 +18,20 @@
         </div>
         <div class="col-md-10 mx-auto col-lg-5">
             <div class="p-1 p-md-4 border rounded-5 bg-body-tertiary" name="form" style="min-height: 0px;">
-                <form id="signup">
+                <form id="signup" action="{% url 'register' %}"  method="POST">
                     {% csrf_token %}
                     <div style="min-height: 0px; min-width: 0px;">
                         <div class="card card-body" style="width: 300px;">
                             <div class="form-field mb-3">
-                                <input type="text" id="name" placeholder="name" name="name"
-                                    autocomplete="off">
+                                <input type="text" id="name" placeholder="name" name="name" autocomplete="off">
                                 <small></small>
                             </div>
                             <div class="form-field mb-3">
-                                <input type="email" id="mail" placeholder="Email-Id" autocomplete="off">
+                                <input type="email" id="mail" placeholder="Email-Id" name="mail" autocomplete="off">
                                 <small></small>
                             </div>
                             <div class="form-field mb-3">
-                                <input type="password" id="password1" placeholder="Password" name="password1"
-                                    autocomplete="off">
+                                <input type="password" id="password1" placeholder="Password" name="password1" autocomplete="off">
                                 <small></small>
                             </div>
                             <div class="form-field mb-3">
@@ -49,14 +47,14 @@
                 <hr class="my-2">
                 <div>
                     <b>Aldready have an account!
-                        <a href="#" onclick="window.location='login.html';">login</a>
+                        <a href="{% url 'login' %}">login</a>
                     </b>
                 </div>
             </div>
         </div>
         <br><br>
     </div>
-    <script src="{%static "js/signup.js" %}"></script>
+    {% comment %} <script src="{%static "js/signup.js" %}"></script> {% endcomment %}
 </body>
 
 </html>
