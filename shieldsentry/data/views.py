@@ -221,3 +221,5 @@ def picspam(request,api_key=None,uid=None):
     text = pytesseract.image_to_string(image)
     print("Text extracted from the selected portion of the image:")
     print(text)
+    
+    
