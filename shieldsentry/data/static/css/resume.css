@@ -1,0 +1,105 @@
+.resume {
+    display: none;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border: 2px solid #ccc;
+    border-radius: 20px;
+}
+
+.flex-column-li {
+    text-align: center;
+}
+
+p {
+    color: #666;
+    font-size: 18px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.res-li {
+    margin: 5px 0;
+}
+
+.res-.entry {
+    margin-bottom: 20px;
+}
+
+textarea {
+    margin-left: 250px;
+
+}
+
+.res-form {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h2 {
+    text-decoration: underline;
+    color: #4a4545;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-left: 250px;
+}
+
+.res input[type="text"],
+.res input[type="email"],
+.res input[type="tel"],
+.res input[type="url"] {
+    width: 98%;
+    padding: 5px;
+    margin-left: 250px;
+    margin-bottom: 10px;
+}
+
+input[type="text"]:last-child,
+input[type="email"]:last-child,
+input[type="tel"]:last-child,
+input[type="url"]:last-child {
+    margin-bottom: 20px;
+    margin-left: 250px;
+}
+
+
+.res input[type="submit"] {
+    background-color: #0077cc;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-left: 250px;
+    margin-top: 5px;
+}
+
+.res input[type="submit"]:hover {
+    background-color: #0055aa;
+    margin-left: 250px;
+
+}
+
+#print-button {
+    margin-top: 5px;
+    position: absolute;
+    right: 10px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    background-color: #0077cc;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+#print-button:hover {
+    background-color: #0055aa;
+}
