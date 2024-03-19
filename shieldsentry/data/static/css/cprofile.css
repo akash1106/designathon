@@ -1,0 +1,107 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.orgprofile{
+    margin-left: 260px;
+}
+
+.Mainheader {
+    margin-left: 260px;
+}
+
+h1 {
+    color: #333;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+}
+
+h3{
+    margin-top: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+p {
+    color: #666;
+    font-size: 18px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin: 5px 0;
+}
+
+.entry {
+    margin-bottom: 20px;
+}
+
+form {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+}
+
+#addlocation {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 7px 12px;
+    border-radius: 15px;
+    background-color: #0077cc;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="url"] {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+input[type="text"]:last-child,
+input[type="email"]:last-child,
+input[type="tel"]:last-child,
+input[type="url"]:last-child {
+    margin-bottom: 20px;
+}
+
+#company-description {
+    width: 100%;
+}
+
+#submit-button {
+    display: block;
+    position: absolute;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 10px 20px;
+    border-radius: 15px;
+    background-color: #0077cc;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    left: 60%;
+    transform: translateX(-60%);
+    
+  }
+  
+#submit-button:hover {
+    background-color: #0055aa;  
+}
