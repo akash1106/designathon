@@ -16,12 +16,9 @@
             </a>
     
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-              <li><a href="#" class="nav-link px-2 link-body-emphasis">Dashboard</a></li>
-              <li><a href="#" class="nav-link px-2 link-body-emphasis">Profile</a></li>
-              <li><a href="#" class="nav-link px-2 link-body-emphasis">About</a></li>
-              <li><a href="#" class="nav-link px-2 link-body-emphasis">Help</a></li>
+             
             </ul>
-    
+
             <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
               <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
             </form>
@@ -31,10 +28,10 @@
                 <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
               </a>
               <ul class="dropdown-menu text-small" style="">
-                <li><a class="dropdown-item" href="#">Profile</a></li>
-                <li><a class="dropdown-item" href="#">Change Password</a></li>
+                <li><a class="dropdown-item" href="{% url 'profile' user.uid %}">Profile</a></li>
+                <li><a class="dropdown-item" href="{% url 'changepass' user.uid %}">Change Password</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#">Sign out</a></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}">Sign out</a></li>
               </ul>
             </div>
           </div>
@@ -55,9 +52,9 @@
                 {% csrf_token %}
               <h5 class="card-title">Enter your Audio</h5>
               <input type="file" name="audio" style="width: 300px; height: 200px;">
-              {% if data == 1 %}
+              {% if data == 2 %}
               <h2>Your Audio is : Spam</h2>
-              {% elif  data == 2%}
+              {% elif  data == 1%}
               <h2>Your Audio is : Not Spam</h2>
               {% endif %}
 <br>

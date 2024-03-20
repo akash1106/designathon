@@ -16,12 +16,9 @@
             </a>
     
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-              <li><a href="./admin_dashboard.html" class="nav-link px-2 link-body-emphasis">Dashboard</a></li>
-              <li><a href="#" class="nav-link px-2 link-body-secondary">Profile</a></li>
-              <li><a href="{% url 'profile' user.uid %}" class="nav-link px-2 link-body-emphasis">About</a></li>
-              <li><a href="#" class="nav-link px-2 link-body-emphasis">Help</a></li>
+             
             </ul>
-    
+            
             <div class="dropdown text-end">
               <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
@@ -40,9 +37,12 @@
             <h5 class="card-header">API Key</h5>
             <div class="card-body">
               <h5 class="card-title">Your API Key</h5>
-              <input type="text" width="100%">
+              <form  action="{% url 'profile' user.uid %}"  method="POST" >
+                {% csrf_token %}
+              <input type="text" width="100%" value='{{ user.api }}' disabled>
 
-              <a href="#" class="btn btn-primary">Change API Key</a>
+              <button type="submit" class="btn btn-primary">get API Key</button>
+              </form>
             </div>
           </div>
 

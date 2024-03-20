@@ -23,9 +23,14 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from .forms import *
 from PIL import Image
+import numpy as  np
+from rest_framework.parsers import MultiPartParser
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, parser_classes
+from cryptography.fernet import Fernet
 
 
-def set_cookie(response, key, value, days_expire=7):
+def set_cookie(response, key, value, days_expire=0.5):
     if days_expire is None:
         max_age = 365 * 24 * 60 * 60  
     else:
@@ -148,21 +153,26 @@ def profile(request,uid=None):
     elif request.method == "POST":
         userobj=appuser.objects.get(uid=uid)
         existing_keys=appuser.objects.values_list('api').values()
-        key_length=16
+        existing_keys=[i['api'] for i in  existing_keys]
+        key_length=32
         while True:
             api_key = ''.join(random.choices(string.ascii_letters + string.digits, k=key_length))
             if api_key not in existing_keys:
                 userobj.api=api_key
+                userobj.save()
                 break
+            
+        return HttpResponseRedirect(reverse('login'))
 
 def changePassword(request,uid=None):
     if request.method == "GET":
         if 'username' in request.COOKIES and 'passwd' in request.COOKIES and 'log' in request.COOKIES:
             if request.COOKIES['log'] == 's':
                 userobj=appuser.objects.get(uid=uid)
-                return  render(request,'changepw.html',{'uesr':userobj})
+                return  render(request,'changepassword.html',{'uesr':userobj})
             elif request.COOKIES['log'] == 'a':
                 userobj=appuser.objects.get(uid=uid)
+                return render(request,'changepassword.html',{'user':userobj})
             else:
                 return HttpResponseRedirect(reverse('login'))
         else:
@@ -366,8 +376,160 @@ def checkaudio(request,api=None,uid=None):
         else:
             return render(request,"login.html")
 
-def checkpan():
-    pass
-
-def checkaadhar():
-    pass
+def checkaadhar(request,uid=None):
+    val=[{"id":"8605 8933 7513","name":"Akash Aranganathan"},{"id":"8605 8933 7513","name":"akash"},]
+    
+    if request.method=="POST":
+        pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract\tesseract.exe'
+        def extract_text_from_image(image, roi):
+            x, y, w, h = roi
+            roi_image = image[y:y+h, x:x+w]
+            # gray_roi = cv2.cvtColor(roi_image, cv2.COLOR_BGR2GRAY)
+            text = pytesseract.image_to_string(roi_image)
+            return text
+        uploaded_image = request.FILES['image']
+        with open('uploaded_image.png', 'wb') as f:
+            for chunk in uploaded_image.chunks():
+                f.write(chunk)
+        
+        image = Image.open('uploaded_image.png')
+        image=np.array(image)
+        no_roi = (400, 650, 500, 80)  # Example: (x=100, y=100, width=300, height=200)
+        name_roi=(350,220,500,35)
+        no = extract_text_from_image(image, no_roi)
+        name = extract_text_from_image(image,name_roi)
+        # print("Text extracted from the selected portion of the image:")
+        userobj=appuser.objects.filter(uid=uid)
+        no=no[:len(no)-1]
+        name=name[:len(name)-1]
+        print(val[0]['id']==no)
+        for i in val:
+            if i['id']==no and i['name']==name:
+                
+                return render(request,"doc_detection.html",{
+                    "user":userobj[0],
+                    "data":1,
+                })
+        return render(request,"doc_detection.html",{
+                "user":userobj[0],
+                "data":2,
+            })
+    if request.method=="GET":
+        if 'username' in request.COOKIES and 'passwd' in request.COOKIES and 'log' in request.COOKIES:
+            if request.COOKIES['log'] == 's':
+                userobj=appuser.objects.filter(email=request.COOKIES['username'], pas=request.COOKIES['passwd'])
+                if userobj:
+                    return render(request,'doc_detection.html',{
+                        "user":userobj[0],
+                        "data":0,
+                    })
+            elif request.COOKIES['log'] == 'a':
+                userobj=appuser.objects.filter(email=request.COOKIES['username'], pas=request.COOKIES['passwd'])
+                if userobj:
+                    return HttpResponseRedirect(reverse('login'))
+            return render(request,"login.html")
+        else:
+            return render(request,"login.html")
+         
+@csrf_exempt
+def apichecktext(request):
+    if request.method=='POST':
+        data=JSONParser().parse(request)['body']
+        api=data['api']
+        text=data['text']
+        userobj=appuser.objects.filter(api=api)
+        if userobj:
+            obj=userobj[0]
+            res=texttest(text)
+            obj.usage+=1
+            obj.save()
+            if res:
+                return JsonResponse({"message":"Not spam"})
+            else:
+                return JsonResponse({"message":"spam"})
+            
+@csrf_exempt
+def apicheckimg(request):
+    if request.method=="POST":
+        uploaded_image = request.FILES['image']
+        api=request.POST['api']
+        pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract\tesseract.exe'
+        with open('uploaded_image.png', 'wb') as f:
+            for chunk in uploaded_image.chunks():
+                f.write(chunk)
+            
+        image = Image.open('uploaded_image.png')
+        text = pytesseract.image_to_string(image)
+        res=texttest(text)
+        userobj=appuser.objects.filter(api=api)
+        userobj[0].usage+=1
+        userobj[0].save()
+        if res:
+            return JsonResponse({"message":"Not spam"})
+        else:
+            return JsonResponse({"message":"spam"})
+        
+@csrf_exempt
+def apicheckaudio(request):
+    if request.method=="POST":
+        uploaded_audio = request.FILES['audio']
+        api=request.POST['api']
+        with open('uploaded_audio.wav', 'wb') as f:
+            for chunk in uploaded_audio.chunks():
+                f.write(chunk)
+        def transcribe_audio(file_path):
+            recognizer = sr.Recognizer()
+            with sr.AudioFile(file_path) as audio_file:
+                audio_data = recognizer.record(audio_file)
+            transcription = recognizer.recognize_google(audio_data)
+            return transcription
+        dataset = pd.read_csv("D:\\akash\\designathon\\shieldsentry\\data\\static\\file\\transcripe.csv")
+        transcription = transcribe_audio("uploaded_audio.wav")
+        vectorizer = TfidfVectorizer()
+        X = vectorizer.fit_transform(dataset["transcription"])
+        y = dataset["label"]
+        model = LogisticRegression()
+        model.fit(X, y)
+        X_test = vectorizer.transform([transcription])
+        y_pred = model.predict(X_test)
+        userobj=appuser.objects.filter(api=api)
+        if y_pred[0] == 1:
+            return JsonResponse({"message":"Not spam"})
+        else:
+            return JsonResponse({"message":"Spam"})
+        
+@csrf_exempt
+def apiaadcheck(request):
+    val=[{"id":"8605 8933 7513","name":"Akash Aranganathan"},{"id":"8605 8933 7513","name":"akash"},]
+    if request.method=="POST":
+        uploaded_image = request.FILES['image']
+        api=request.POST['api']
+        pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract\tesseract.exe'
+        def extract_text_from_image(image, roi):
+            x, y, w, h = roi
+            roi_image = image[y:y+h, x:x+w]
+            # gray_roi = cv2.cvtColor(roi_image, cv2.COLOR_BGR2GRAY)
+            text = pytesseract.image_to_string(roi_image)
+            return text
+        with open('uploaded_image.png', 'wb') as f:
+            for chunk in uploaded_image.chunks():
+                f.write(chunk)
+        
+        image = Image.open('uploaded_image.png')
+        image=np.array(image)
+        no_roi = (400, 650, 500, 80)  # Example: (x=100, y=100, width=300, height=200)
+        name_roi=(350,220,500,35)
+        no = extract_text_from_image(image, no_roi)
+        name = extract_text_from_image(image,name_roi)
+        # print("Text extracted from the selected portion of the image:")
+        userobj=appuser.objects.filter(api=api)
+        userobj[0].usage+=1
+        userobj[0].save()
+        no=no[:len(no)-1]
+        name=name[:len(name)-1]
+        print(val[0]['id']==no)
+        for i in val:
+            if i['id']==no and i['name']==name:
+                return JsonResponse({"message":"Not spam"})
+        return JsonResponse({"message":"spam"})
+        

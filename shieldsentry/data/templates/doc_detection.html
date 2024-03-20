@@ -14,27 +14,21 @@
             <a class="navbar-brand" href="#"  ><b>ShieldSentry</b></a><a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
               <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
             </a>
+  
     
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-              <li><a href="#" class="nav-link px-2 link-body-emphasis">Dashboard</a></li>
-              <li><a href="#" class="nav-link px-2 link-body-emphasis">Profile</a></li>
-              <li><a href="#" class="nav-link px-2 link-body-emphasis">About</a></li>
-              <li><a href="#" class="nav-link px-2 link-body-emphasis">Help</a></li>
+             
             </ul>
-    
-            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-              <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
-            </form>
-    
+            
             <div class="dropdown text-end">
               <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
               </a>
               <ul class="dropdown-menu text-small" style="">
-                <li><a class="dropdown-item" href="#">Profile</a></li>
-                <li><a class="dropdown-item" href="#">Change Password</a></li>
+                <li><a class="dropdown-item" href="{% url 'profile' user.uid %}">Profile</a></li>
+                <li><a class="dropdown-item" href="{% url 'changepass' user.uid %}">Change Password</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#">Sign out</a></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}">Sign out</a></li>
               </ul>
             </div>
           </div>
@@ -44,10 +38,18 @@
             <h5 class="card-header"><b>Document Detection</b></h5>
             <div class="card-body">
               <h5 class="card-title">Upload your Document</h5>
-            <input type="file" style="margin-left: 105px;margin-top: 15px;margin-bottom: 15px; ">
-            <br>
-
-              <a href="#" class="btn btn-primary" style="margin: 20px ;" >Submit</a>
+              <form  action="{% url 'checkaadhar' user.uid %}"  method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                  <h5 class="card-title">Upload your Image</h5>
+                <input type="file"  name="image" style="margin-left: 105px;margin-top: 15px;margin-bottom: 15px; ">
+                <br>
+                {% if data == 1 %}
+                <h2>Your image is :Not Spam</h2>
+                {% elif  data == 2%}
+                <h2>Your image is : Spam</h2>
+                {% endif %}
+                <button class="btn btn-primary" type="submit">sumbit</button>
+              </form>
             </div>
           </div>
 

@@ -12,4 +12,9 @@ urlpatterns=[
     path("checkText/<int:uid>",views.checkText,name="checktext"),
     path("picspam/<int:uid>",views.picspam,name="picspam"),
     path("checkaudio/<int:uid>",views.checkaudio,name="checkaudio"),
+    path("checkaadhar/<int:uid>",views.checkaadhar,name="checkaadhar"),
+    path("apichecktext",views.apichecktext,name="apichecktext"),
+    path("apicheckimg",views.apicheckimg,name="apicheckimg"),
+    path("apicheckaudio",views.apicheckaudio,name="apicheckaudio"),
+    path("apiaadcheck",views.apiaadcheck,name="apiaadcheck"),
 ]
